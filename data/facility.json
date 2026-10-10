@@ -1,0 +1,26 @@
+{
+  "id": "usda-sc-coffee-al",
+  "name": "USDA Service Center (synthetic)",
+  "latitude": 31.4146,
+  "longitude": -86.0677,
+  "hours": {
+    "opens": "08:00",
+    "closes": "16:30",
+    "open_days": [0, 1, 2, 3, 4, 5, 6]
+  },
+  "notes": "Synthetic facility for the hackathon. open_days uses 0 for Monday through 6 for Sunday. Real Service Centers open Monday to Friday; this one is set to 7 days so a weekend demo evaluates the current day. Federal holidays are not modeled. Every employee below is fictional: the email addresses use example.com and the phone numbers use the reserved 555-01xx range. status_today is one of in_office, telework or detail_elsewhere. home_office is the facility the person is assigned to, which is not always this one.",
+  "employees": [
+    {"id": "E01", "name": "Jordan Avery", "role": "County Executive Director", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": true, "prefers_voice_call": false, "email": "jordan.avery@example.com", "phone": "334-555-0101"},
+    {"id": "E02", "name": "Riley Brooks", "role": "Program Technician", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": false, "prefers_voice_call": false, "email": "riley.brooks@example.com", "phone": "334-555-0102"},
+    {"id": "E03", "name": "Casey Dalton", "role": "Program Technician", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": false, "prefers_voice_call": true, "email": "casey.dalton@example.com", "phone": "334-555-0103"},
+    {"id": "E04", "name": "Morgan Ellis", "role": "Farm Loan Officer", "home_office": "usda-sc-coffee-al", "status_today": "telework", "essential": false, "prefers_voice_call": false, "email": "morgan.ellis@example.com", "phone": "334-555-0104"},
+    {"id": "E05", "name": "Taylor Flynn", "role": "District Conservationist", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": false, "prefers_voice_call": false, "email": "taylor.flynn@example.com", "phone": "334-555-0105"},
+    {"id": "E06", "name": "Devon Grant", "role": "Soil Conservationist", "home_office": "usda-sc-coffee-al", "status_today": "detail_elsewhere", "essential": false, "prefers_voice_call": false, "email": "devon.grant@example.com", "phone": "334-555-0106"},
+    {"id": "E07", "name": "Quinn Harper", "role": "Soil Conservation Technician", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": false, "prefers_voice_call": false, "email": "quinn.harper@example.com", "phone": "334-555-0107"},
+    {"id": "E08", "name": "Reese Ingram", "role": "Rural Development Area Specialist", "home_office": "usda-sc-coffee-al", "status_today": "telework", "essential": false, "prefers_voice_call": false, "email": "reese.ingram@example.com", "phone": "334-555-0108"},
+    {"id": "E09", "name": "Skyler James", "role": "Loan Analyst", "home_office": "usda-sc-dale-al", "status_today": "in_office", "essential": false, "prefers_voice_call": false, "email": "skyler.james@example.com", "phone": "334-555-0109"},
+    {"id": "E10", "name": "Parker Keane", "role": "Facilities and Safety Coordinator", "home_office": "usda-sc-coffee-al", "status_today": "in_office", "essential": true, "prefers_voice_call": false, "email": "parker.keane@example.com", "phone": "334-555-0110"},
+    {"id": "E11", "name": "Rowan Lake", "role": "Program Technician", "home_office": "usda-sc-coffee-al", "status_today": "detail_elsewhere", "essential": false, "prefers_voice_call": false, "email": "rowan.lake@example.com", "phone": "334-555-0111"},
+    {"id": "E12", "name": "Sawyer Moss", "role": "Engineering Technician", "home_office": "usda-sc-geneva-al", "status_today": "in_office", "essential": false, "prefers_voice_call": false, "email": "sawyer.moss@example.com", "phone": "334-555-0112"}
+  ]
+}

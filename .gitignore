@@ -1,0 +1,16 @@
+# Secrets (API keys). Never commit these: this repository is public.
+.env
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# VibeWise learning notes
+.vibe-wise/
+
+# Decision records written while running the system
+data/records/
+
+# Local preview settings for the Claude desktop app
+.claude/
