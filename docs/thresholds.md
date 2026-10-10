@@ -196,7 +196,28 @@ Every person on the roster appears in the package with the reason they were incl
 left out. An accessibility flag switches the text to a voice call. The system drafts and
 routes messages. It does not send them.
 
-## 8. Known limits
+## 8. AI wording: what Claude may and may not do
+
+Kind: **team decision**.
+
+No model decides anything. The posture, the thresholds, the confidence and the recipient
+list all come from the rules above. Claude (`claude-opus-5-5`) is used for one optional step:
+rewording the rationale and the message drafts.
+
+| Guardrail | How it is enforced |
+| --- | --- |
+| Claude sees only verified text | The request contains the template text and the names to keep, nothing else. |
+| No invented numbers | Every number or time in a rewrite must already appear in its template. |
+| No dropped times | Every clock time in the template must appear in the rewrite. |
+| Names kept | The status name, alert name and facility name must appear in the rewrite. |
+| Fail safe | A piece that fails a check keeps its template wording, and the screen lists why. With no key, or if the API fails or declines, the templates are used. |
+| Accountable | The manager reads the wording before recording, and the record states whether Claude or the template wrote the rationale and the messages. |
+
+The checks are in [`closure_call/drafting.py`](../closure_call/drafting.py) and are tested
+without calling the API. On 2026-10-10 a live call reworded one rationale and three messages
+in about 9 seconds, and all four passed.
+
+## 9. Known limits
 
 - The 2-hour delayed arrival window and the single major delay are starting values.
 - The synthetic facility is open seven days a week so that a weekend demo evaluates the
@@ -209,6 +230,8 @@ routes messages. It does not send them.
   file, and removing the newest records leaves a valid shorter chain. A real deployment
   would anchor the fingerprints somewhere the record keeper cannot write.
 - The roster is synthetic, and each person's status for the day is a fixed field.
+- The wording checks catch new numbers, dropped times and dropped names. They cannot catch a
+  change of meaning that uses none of those. A person reading the draft is the last check.
 
 ## Sources
 
@@ -222,5 +245,6 @@ routes messages. It does not send them.
 - OASIS, Common Alerting Protocol version 1.2, severity and certainty fields:
   <http://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2-os.html>
 - Alabama DOT traffic events feed: <https://api.algotraffic.com/v4.0/TrafficEvents>
+- Anthropic, Claude API documentation: <https://platform.claude.com/docs>
 - TomTom Traffic API, Incident Details:
   <https://docs.tomtom.com/traffic-api/documentation/tomtom-maps/traffic-incidents/incident-details>

@@ -45,7 +45,7 @@ def make_decision(recommended, decided, decided_by, reason, decided_at):
 
 
 def build_entry(
-    facility, place, roads, recommendation, rationale, decision, notices, corrects=None, road_context=None
+    facility, place, roads, recommendation, rationale, decision, notices, corrects=None, road_context=None, wording=None
 ):
     """Everything known at decision time, in the shape that gets saved.
 
@@ -59,6 +59,8 @@ def build_entry(
         # Includes every alert as received, with its source URL and fetch time.
         "recommendation": {**asdict(recommendation), "posture_name": POSTURES[recommendation.posture]},
         "rationale": rationale,
+        # Who wrote the rationale and messages: fixed templates, or Claude after the fact checks.
+        "wording": wording or {"rationale": "template", "messages": "template"},
         "decision": decision,
         "notifications": [asdict(notice) for notice in notices],
         "corrects": corrects,

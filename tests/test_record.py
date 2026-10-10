@@ -152,6 +152,7 @@ def test_a_full_decision_is_saved_with_every_input_and_can_be_read_back(path):
     assert loaded["recommendation"]["alert"]["fetched_at"] == "2026-10-12T10:00:00+00:00"
     assert loaded["recommendation"]["alert"]["raw"]["description"].startswith("The Pea River")
     assert loaded["roads"] is None
+    assert loaded["wording"] == {"rationale": "template", "messages": "template"}
     assert loaded["decision"]["decided_by"] == "Jordan Avery"
     assert loaded["decision"]["decided_at"] == "2026-10-12T10:05:00+00:00"
     assert loaded["decision"]["differs_from_recommendation"] is True

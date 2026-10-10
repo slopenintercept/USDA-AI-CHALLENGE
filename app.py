@@ -7,12 +7,14 @@ decision record saves exactly what was on screen when the manager decided.
 """
 
 import json
+import os
+from dataclasses import replace
 from datetime import datetime, timezone
 
 import requests
 import streamlit as st
 
-from closure_call import nws, record
+from closure_call import drafting, nws, record
 from closure_call.facility import load_facility, operating_period, placed
 from closure_call.notify import build_package, rationale
 from closure_call.roads import get_road_context, get_road_summary
@@ -186,8 +188,22 @@ else:
                 width="stretch",
             )
 
+# Claude's wording, if it was requested for this snapshot. It has already passed the fact checks.
+drafted = st.session_state.get("drafted")
+if drafted and drafted["snapshot"] != now:
+    drafted = None
+wording = drafted.get("draft") if drafted else None
+rationale_text = wording.rationale if wording else snapshot["rationale"]
+
 st.subheader("Rationale, ready to paste into an email")
-st.code(snapshot["rationale"], language=None, wrap_lines=True)
+st.code(rationale_text, language=None, wrap_lines=True)
+if wording:
+    st.caption(
+        f"Worded by Claude ({wording.model}) and checked against the facts: "
+        "no new numbers, and every time and name kept."
+    )
+    with st.expander("Template wording"):
+        st.code(snapshot["rationale"], language=None, wrap_lines=True)
 
 with st.expander("Where each cutoff comes from"):
     st.dataframe(
@@ -213,6 +229,42 @@ if decided != result.posture:
     st.info("This differs from the recommendation, so a written reason is required.")
 notices = build_package(decided, facility, period, result.alert)
 
+# Optional AI wording. The rules decided the posture and the templates state the facts;
+# Claude only rewords them, and drafting.py keeps the template wherever a check fails.
+if st.button(
+    "Reword the rationale and messages with Claude",
+    disabled=not os.environ.get("ANTHROPIC_API_KEY"),
+    help="Needs ANTHROPIC_API_KEY in the .env file. The templates are used without it.",
+):
+    templates = list(dict.fromkeys(notice.message for notice in notices if notice.included))
+    keep = [POSTURES[result.posture], POSTURES[decided], facility.name]
+    if result.alert:
+        keep.append(result.alert.event)
+    drafted = {"snapshot": now, "posture": decided}
+    with st.spinner("Claude is rewording the drafts. This takes about 10 seconds."):
+        try:
+            drafted["draft"] = drafting.draft(snapshot["rationale"], templates, keep)
+        except drafting.DraftingError as error:
+            drafted["error"] = str(error)
+    st.session_state.drafted = drafted
+    st.rerun()
+if drafted and "error" in drafted:
+    st.warning(f"Claude's wording was not used: {drafted['error']} The templates are shown.")
+if wording and wording.rejected:
+    st.warning(
+        "These pieces kept their template wording because a check failed: " + "; ".join(wording.rejected) + "."
+    )
+# Claude's messages apply only to the posture they were written for.
+messages_reworded = wording is not None and drafted["posture"] == decided
+if messages_reworded:
+    notices = [replace(notice, message=wording.messages.get(notice.message, notice.message)) for notice in notices]
+written_by = {
+    "rationale": "claude" if wording else "template",
+    "messages": "claude" if messages_reworded else "template",
+    "model": wording.model if wording else None,
+    "template_kept_for": list(wording.rejected) if wording else [],
+}
+
 with st.form("decision"):
     decided_by = st.text_input("Your name")
     reason = st.text_area("Reason", help="Required when your decision differs from the recommendation.")
@@ -224,7 +276,15 @@ with st.form("decision"):
         else:
             saved = record.append(
                 record.build_entry(
-                    facility, place, roads, result, snapshot["rationale"], decision, notices, road_context=context
+                    facility,
+                    place,
+                    roads,
+                    result,
+                    rationale_text,
+                    decision,
+                    notices,
+                    road_context=context,
+                    wording=written_by,
                 )
             )
             st.success(f"Saved as record {saved['sequence']}, fingerprint {saved['fingerprint'][:16]}...")
@@ -232,7 +292,10 @@ with st.form("decision"):
 # 3. Notification package ---------------------------------------------------------------------
 
 st.header("3. Notification package")
-st.caption("Drafted for the posture selected above. Nothing is sent.")
+st.caption(
+    "Drafted for the posture selected above. Nothing is sent. "
+    + ("Messages worded by Claude and checked against the facts." if messages_reworded else "Messages use the fixed templates.")
+)
 st.dataframe(
     [
         {
