@@ -50,7 +50,9 @@ THRESHOLDS = {
     "delayed_arrival_hours": Threshold(
         2,
         "A Warning that ends within this many hours after opening gives delayed arrival.",
-        "Starting value. OPM's operating status archive lists 'Open - 2 hours Delayed Arrival'.",
+        "Starting value. OPM's Governmentwide Dismissal and Closure Procedures (December 2025, section IV.B.3) "
+        "define 'Open - X Hour(s) Delayed Arrival' and leave X to the decision-maker. "
+        "Its worked example uses a 2-hour delayed arrival.",
     ),
     "closure_severity": Threshold(
         "Extreme",

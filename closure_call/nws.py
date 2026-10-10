@@ -76,6 +76,16 @@ def get_active_alerts(latitude, longitude):
     return [parse_alert(feature, fetched_at) for feature in data["features"]]
 
 
+def get_all_active_features():
+    """Every active land alert in the country, as received."""
+    return _get(f"{API}/alerts/active", {"status": "actual", "region_type": "land"})["features"]
+
+
+def get_shape(url):
+    """The outline of an NWS zone or county, as GeoJSON."""
+    return _get(url)["geometry"]
+
+
 def get_point_info(latitude, longitude):
     """Time zone, nearest place and county for a location, so the facility can be moved by coordinates alone."""
     p = _get(f"{API}/points/{latitude:.4f},{longitude:.4f}")["properties"]

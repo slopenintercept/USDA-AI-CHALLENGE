@@ -14,6 +14,7 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
+from closure_call.geo import inside
 from closure_call.rules import RoadSummary
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -74,15 +75,6 @@ def get_road_summary(place):
     return summarize_alabama(response.json(), place.county, datetime.now(timezone.utc))
 
 
-def _inside(ring, longitude, latitude):
-    """Whether a point lies inside a closed ring of (longitude, latitude) points."""
-    inside = False
-    for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
-        if (y1 > latitude) != (y2 > latitude) and longitude < (x2 - x1) * (latitude - y1) / (y2 - y1) + x1:
-            inside = not inside
-    return inside
-
-
 def _boxes(rings):
     """Boxes small enough for one TomTom request each that together cover the county."""
     longitudes = [longitude for ring in rings for longitude, _ in ring]
@@ -106,7 +98,7 @@ def summarize_tomtom(incidents, rings, fetched_at):
         shape = incident["geometry"]
         points = [shape["coordinates"]] if shape["type"] == "Point" else shape["coordinates"]
         start, end = points[0], points[-1]
-        in_county = any(_inside(ring, longitude, latitude) for ring in rings for longitude, latitude in (start, end))
+        in_county = any(inside(ring, longitude, latitude) for ring in rings for longitude, latitude in (start, end))
         if incident["properties"]["iconCategory"] == TOMTOM_ROAD_CLOSED and in_county:
             closed.append({"properties": incident["properties"], "start": start, "end": end})
     return RoadContext(
